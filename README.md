@@ -92,6 +92,7 @@ CHModel.m
 ```
 解析完毕后返回的数据
 
+![1111](https://github.com/GithubChinaCH/CHModel/raw/master/1111.png)
 
 #功能2 解析自定义
 使用方法- (instancetype)initWithJson:(id)object 构造对象即可进行解析
