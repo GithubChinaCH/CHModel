@@ -51,7 +51,12 @@ CHModel是基于‘AFNetworling’（3.0.4） 使用前请添加AFNetworking    
 2设置子类的属性
 3进行网络请求
 
-例子
+#例子
+
+注意返回名字和参数名不一样要设置映射字典- (NSDictionary *)setMapperDic
+```
+- (NSDictionary *)setMapperDic
+```
 参照 http://apistore.baidu.com/apiworks/servicedetail/112.html
 ```
 url:"https://apis.baidu.com/apistore/weatherservice/citylist"
