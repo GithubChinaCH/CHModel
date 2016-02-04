@@ -26,7 +26,7 @@ CHModel是基于‘AFNetworling’（3.0.4） 使用前请添加AFNetworking    
 - (void)settingDefaultHttpRequest
 ```
 
-根据网络请求返回的数据格式修改“re Data”的值
+根据网络请求返回的数据格式修改“reData”的值
 ```
 - (void)POST:(NSString *)url CompletionBlcok:(void (^)(BOOL, NSError *error))compBlock
 {
