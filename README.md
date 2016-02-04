@@ -46,6 +46,7 @@ CHModel是基于‘AFNetworling’（3.0.4） 使用前请添加AFNetworking    
 }
 ```
 使用方法
+
 1创建一个继承于CHModel的子类  
 2设置子类的属性
 3进行网络请求
@@ -70,14 +71,16 @@ paramters: cityname = 杭州
 @interface chSubModel : CHModel
 @property (nonatomic, strong) NSArray<chSubM> *citys;
 @end
-
+```
+```
 chSubModel *mdoel = [[chSubModel alloc] init]; //创建
 mdoel.parameters = [NSMutableDictionary dictionaryWithDictionary:@{@"cityname":@"杭州"}];   //设置请求参数
 //进行请求  可以在子类中自己分装请求方法 也可以使用父类的请求方法
 [mdoel GET:@"https://apis.baidu.com/apistore/weatherservice/citylist" CompletionBlcok:^(BOOL isSuccess, NSError *error) {
     NSLog(@"%@",mdoel);
 }];
-
+```
+```
 CHModel.m
 - (void)settingDefaultHttpRequest
 {
