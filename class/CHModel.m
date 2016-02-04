@@ -7,7 +7,7 @@
 //
 
 #import "CHModel.h"
-#import <AFNetworking.h>
+#import "AFNetworking.h"
 
 @interface CHModel ()
 @property(nonatomic, strong) AFHTTPSessionManager *sessionManager;
@@ -44,7 +44,7 @@ static const char *propertyDicKey;
     //do some default setting
     [_sessionManager.requestSerializer setValue:@"application/json"forHTTPHeaderField:@"Accept"];
     [_sessionManager.requestSerializer setValue:@"application/json;charset=utf-8"forHTTPHeaderField:@"Content-Type"];
-    [_sessionManager.requestSerializer setValue:@"8f8418050c74865be891e1dcb66ec3f2" forHTTPHeaderField:@"apikey"];
+//    [_sessionManager.requestSerializer setValue:@"8f8418050c74865be891e1dcb66ec3f2" forHTTPHeaderField:@"apikey"];
 }
 
 
@@ -56,7 +56,7 @@ static const char *propertyDicKey;
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSLog(@"request success");
         NSLog(@"%@",responseObject);
-        [self analyticalObjectData:responseObject];
+        [self analyticalObjectData:responseObject objectForKey:@"retData"];
         compBlock(YES, nil);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"request fail");

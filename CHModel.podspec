@@ -12,5 +12,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/GithubChinaCH/CHModel.git", :tag => "0.0.1" }
   s.platform     = :ios, '7.0'
   s.requires_arc = true
-  s.source_files  = "class/*"
+  s.source_files = "class/*"
+  s.frameworks   = 'UIKit'
+  s.dependency 'AFNetworking', '~> 3.0.4'
 end
