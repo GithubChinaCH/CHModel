@@ -56,7 +56,8 @@ static const char *propertyDicKey;
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSLog(@"request success");
         NSLog(@"%@",responseObject);
-        [self analyticalObjectData:responseObject objectForKey:@"retData"];
+        id value = [responseObject objectForKey:@"retData"];
+        [self analyticalObjectData:value];
         compBlock(YES, nil);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"request fail");
