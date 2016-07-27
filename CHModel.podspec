@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "CHModel"
-  s.version      = "0.1.0"
+  s.version      = “0.2.0”
   s.summary      = "analytical network data"
   s.description  = <<-DESC
                    1.you can use it analytiacal network data
