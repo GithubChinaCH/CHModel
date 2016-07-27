@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "CHModel"
-  s.version      = “0.2.1”
+  s.version      = "0.2.1"
   s.summary      = "analytical network data"
   s.description  = <<-DESC
                    1.you can use it analytiacal network data
@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.homepage     = "https://github.com/GithubChinaCH/CHModel"
   s.license      = "MIT"
   s.author             = { "chenhao" => "chenh@kunion.com.cn" }
-  s.source       = { :git => "https://github.com/GithubChinaCH/CHModel.git", :tag => "0.2.1" }
+  s.source       = { :git => "https://github.com/GithubChinaCH/CHModel.git", :tag => s.version}
   s.platform     = :ios, '7.0'
   s.requires_arc = true
   s.source_files = "class/*"
