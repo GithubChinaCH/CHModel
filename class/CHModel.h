@@ -9,7 +9,6 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 #import <objc/message.h>
-#import "AFNetworking.h"
 
 typedef void(^cmpBlock)(BOOL isSuccess);
 @interface CHModel : NSObject
