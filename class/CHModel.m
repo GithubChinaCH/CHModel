@@ -6,6 +6,7 @@
 //  Copyright © 2016年 jhtxch. All rights reserved.
 //
 #import "CHModel.h"
+#import "AFNetworking.h"
 
 @interface CHModel ()
 

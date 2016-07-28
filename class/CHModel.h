@@ -9,8 +9,8 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 #import <objc/message.h>
-#import <AFNetworking.h>
 
+@class AFHTTPSessionManager;
 typedef void(^cmpBlock)(BOOL isSuccess);
 @interface CHModel : NSObject
 
