@@ -157,8 +157,8 @@ class SCHModel: NSObject {
             return optStr
         }else{
             let length = optStr.count
-            let  range = Range.init(NSMakeRange(9, length - 10), in: optStr)
-            let str = optStr.substring(with:range!)
+            let  range = NSMakeRange(9, length - 10)
+            let str =  (optStr as NSString).substring(with:range)
             return str
         }
     }
