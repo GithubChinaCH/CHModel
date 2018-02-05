@@ -158,6 +158,7 @@ class SCHModel: NSObject {
         }else{
             let length = optStr.count
             let  range = NSMakeRange(9, length - 10)
+         //提交cocoapods 出现警告？？？substring
             let str =  (optStr as NSString).substring(with:range)
             return str
         }
