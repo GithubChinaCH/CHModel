@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.homepage     = "https://github.com/GithubChinaCH/CHModel"
   s.license      = "MIT"
   s.author       = { "chenhao" => "jhtxchenhao@163.com" }
-  s.source       = { :git => "https://github.com/GithubChinaCH/CHModel.git", :tag => s.version}
+  s.source       = { :git => "https://github.com/jhchenhao/CHModel.git", :tag => s.version}
   s.platform     = :ios, '8.0'
   s.requires_arc = true
   s.source_files = "class/swift/*.swift"
