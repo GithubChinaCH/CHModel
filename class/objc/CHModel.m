@@ -6,7 +6,11 @@
 //  Copyright © 2016年 jhtxch. All rights reserved.
 //
 #import "CHModel.h"
-#import "AFNetworking.h"
+
+typedef enum : NSUInteger {
+    POST,
+    GET
+} NETType;// 请求类型
 
 @interface CHModel ()
 
@@ -47,7 +51,6 @@ static NSString *propertyAryKey;
 
 - (void)initDefalt
 {
-    self.parsingStr = nil;
     [self setMapperDic];
     [self setProperty];
 }
@@ -103,51 +106,68 @@ static NSString *propertyAryKey;
 
 - (void)POST:(NSString *)url CompletionBlcok:(cmpBlock)compBlock
 {
-    [self.sessionManager POST:url parameters:self.parameters progress:^(NSProgress * _Nonnull uploadProgress) {
-        
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        //set error string
-        //        _errorStr = [responseObject objectForKey:@"key"];
-        //analyze data
-        NSLog(@"%@",responseObject);
-        if (self.parsingStr) {
-            id data = [responseObject objectForKey:self.parsingStr];
-            [self analyzeData:data];
-        }else{
-            [self analyzeData:responseObject];
-        }
-        compBlock(YES);
-        [self releaseSession:self.sessionManager];
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"error %@",error);
-        compBlock(NO);
-        [self releaseSession:self.sessionManager];
-    }];
+    [self NET:url method:POST cmp:compBlock];
 }
 
 - (void)GET:(NSString *)url CompletionBlcok:(cmpBlock)compBlock
 {
-    [self.sessionManager GET:url parameters:self.parameters progress:^(NSProgress * _Nonnull uploadProgress) {
-        
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        //set error string
-        //        _errorStr = [responseObject objectForKey:@"key"];
-        //analyze data
-        NSLog(@"%@",responseObject);
-        if (self.parsingStr) {
-            id data = [responseObject objectForKey:self.parsingStr];
-            [self analyzeData:data];
-        }else{
-            [self analyzeData:responseObject];
-        }
-        compBlock(YES);
-        [self releaseSession:self.sessionManager];
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"error %@",error);
-        compBlock(NO);
-        [self releaseSession:self.sessionManager];
-    }];
+    [self NET:url method:GET cmp:compBlock];
 }
+
+
+- (void)NET:(NSString *)url method:(NETType)type cmp:(cmpBlock)cmp
+{
+    id parameters = [self finialParameters];
+    
+    //成功回调
+    void(^successBlock)(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) = ^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSLog(@"%@",responseObject);
+        
+        //set error string
+        _message = [responseObject objectForKey:@"message"];
+        _code = [[responseObject objectForKey:@"code"] integerValue];
+        //analyze data
+        id data = [self parsingWithObj:responseObject];
+        [self analyzeData:data];
+        cmp(YES);
+    };
+    
+    //失败回调
+    void(^failureBlock)(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) = ^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"error %@",error);
+        _errcode = error.code;
+        cmp(NO);
+    };
+    
+    if (type == POST) {
+        [self.sessionManager POST:url parameters:parameters progress:nil success:successBlock failure:failureBlock];
+    }else if (type == GET){
+        [self.sessionManager GET:url parameters:parameters progress:nil success:successBlock failure:failureBlock];
+    }
+}
+
+//需要转换成什么格式的数据
+/*
+ code:
+ data:{}
+ message:
+ 有些时候只需要data中的数据 所以返回 return obj[@"data"] 就好
+ */
+- (id)parsingWithObj:(id)obj
+{
+    return obj;
+}
+
+
+//最终的请求参数是什么样子的
+- (NSDictionary *)finialParameters
+{
+    //should override
+    return [self.parameters copy];
+}
+
+
+
 
 //完成任务后释放session 不然会造成内存泄漏
 - (void)releaseSession:(AFURLSessionManager *)manager
@@ -201,6 +221,9 @@ static NSString *propertyAryKey;
         NSDictionary *typeDic = [self propertyType:attribute];
         NSString *key = [_mapper objectForKey:name] ?: name;
         id value = [data objectForKey:key];
+        if (!value) {
+            continue;
+        }
         NSString *code = [typeDic objectForKey:typeCode];
         if ([code isEqualToString:@"@"]) {
             //该属性是oc对象
@@ -208,6 +231,7 @@ static NSString *propertyAryKey;
             NSString *protocol = [typeDic objectForKey:protocolName];
             Class objClass = NSClassFromString(class);
             Class proClass = NSClassFromString(protocol);
+            
             if ([objClass isSubclassOfClass:[CHModel class]]) {
                 //是CHModel的子类
                 id obj = [[objClass alloc] initWithJson:value];
@@ -217,6 +241,13 @@ static NSString *propertyAryKey;
                 NSArray *ary = [self analyzeAryFrom:(NSArray *)value withClass:proClass];
                 [self setValue:ary forKey:name];
             }else{
+                //如果数组没有值 设置为nil
+                if ([objClass isSubclassOfClass:[NSArray class]]) {
+                    NSArray *ary = value;
+                    if (ary.count == 0) {
+                        continue;
+                    }
+                }
                 //其他oc对象
                 [self setValue:value forKey:name];
             }
@@ -235,6 +266,10 @@ static NSString *propertyAryKey;
         id object = [[Cls alloc] initWithJson:value];
         [returnAry addObject:object];
     }
+    if (returnAry.count == 0) {
+        returnAry = nil;
+    }
+    
     return returnAry;
 }
 
