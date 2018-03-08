@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Alamofire
 
 /**
  1. 定义属性的时候,如果是对象,通常都是可选的(类后面加’?’)
@@ -22,9 +23,13 @@ import UIKit
  2：数组 字典等 使用swfit的结构体  不要用oc的NSArray NSDictionary
  */
 
+
+/*在swift3中，编译器自动推断@objc，换句话说，它自动添加@objc
+ 在swift4中，编译器不再自动推断，你必须显式添加@objc*/
+@objcMembers
 class SCHModel: NSObject {
     
-    var propertyAry:Array<(String,String)> = [] // 属性名称,属性类型
+    private var propertyAry:Array<(String,String)> = [] // 属性名称,属性类型
     
     override init() {
         super.init()
@@ -41,10 +46,17 @@ class SCHModel: NSObject {
         self.getAllProperty()
     }
     
+    override func setValue(_ value: Any?, forUndefinedKey key: String) {
+        #if DEBUG
+            print("该对象不存在属性:" + key )
+        #endif
+    }
     
+}
+
+extension SCHModel {
     //MARK:解析 属性 使用反射Mirror
     func parseData(json:AnyObject){
-        
         if json is Array<Any> {
             self.parseAryData(json: json as! Array)
         }else if json is Dictionary<String,Any>{
@@ -82,7 +94,7 @@ class SCHModel: NSObject {
     //解析字典
     func parseDicData(json:Dictionary<String,Any>){
         if json.count == 0{
-//            return
+            return
         }
         let mapdic = self.setMapperDic()
         
@@ -99,7 +111,7 @@ class SCHModel: NSObject {
             if value == nil {
                 continue
             }
-
+            
             
             //1.==========判断是否是数组 且数组中存储的是什么==========
             //Array<SubItem>
@@ -158,7 +170,7 @@ class SCHModel: NSObject {
         }else{
             let length = optStr.count
             let  range = NSMakeRange(9, length - 10)
-         //提交cocoapods 出现警告？？？substring
+            //提交cocoapods 出现警告？？？substring
             let str =  (optStr as NSString).substring(with:range)
             return str
         }
@@ -189,7 +201,6 @@ class SCHModel: NSObject {
                 return clsName
             }
         }
-        
         return nil
     }
     
@@ -205,46 +216,57 @@ class SCHModel: NSObject {
         return [:]
     }
     
-    
-    //MARK: =================NET WORK=========================
-    
+}
+
+
+
+
+
+//MARK: =================NET WORK=========================
+extension SCHModel {
     typealias cmpBlock = (Bool)->Void
     
+    //should override
+    func customHttpHeader() -> HTTPHeaders?{
+        return nil
+    }
+    
+    
     func POST(urlstr:String, parameters:[String:Any]?,cmp:@escaping cmpBlock){
-        self.NetWork(method: "POST", urlstr: urlstr, parameters: parameters, cmp: cmp)
+        self.NetWork(method: .post, urlstr: urlstr, parameters: parameters, cmp: cmp)
     }
     func GET(urlstr:String, parameters:[String:Any]?,cmp:@escaping cmpBlock){
-        self.NetWork(method: "GET", urlstr: urlstr, parameters: parameters, cmp: cmp)
+        self.NetWork(method: .get, urlstr: urlstr, parameters: parameters, cmp: cmp)
     }
     
     
-    private func NetWork(method:String, urlstr:String, parameters:[String:Any]?,cmp:@escaping cmpBlock){
-        let url = URL.init(string: urlstr)
-        var request = URLRequest.init(url: url!)
-        request.httpMethod = method
+    private func NetWork(method:HTTPMethod, urlstr:String, parameters:[String:Any]?,cmp:@escaping cmpBlock){
         
-        let task = URLSession.shared.dataTask(with: request) { (data, respon, error) in
-            do{
-                let dic = try JSONSerialization.jsonObject(with: data!, options:
-                    JSONSerialization.ReadingOptions.allowFragments)
-                //======print======
-                print(dic)
+        Alamofire.request(
+            urlstr, method: method,
+            parameters: parameters,
+            encoding: JSONEncoding.default,
+            headers: self.customHttpHeader()
+            ).responseJSON { (respone) in
+                #if DEBUG
+                    print(respone)
+                #else
+                    
+                #endif
                 
-                self.parseData(json: dic as AnyObject)
-            }catch{
+                if(respone.result.isSuccess){
+                    self.parseData(json: respone.result.value as AnyObject)
+                    cmp(true)
+                }else{
+                    cmp(false)
+                }
                 
-            }
-            cmp(error == nil)
         }
-        task.resume()
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }
+
+
+
+
+
+
